@@ -17,13 +17,15 @@ int main ()
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(1280, 800, "Hello Raylib");
+	InitWindow(700, 500, "omg title");
 
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
 	SearchAndSetResourceDir("resources");
 
-	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
+  float timeCount=0;
+  float deltaTime=0;
+  float currentTime=0;
+  float previousTime=0;
 	
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
@@ -35,18 +37,21 @@ int main ()
 		ClearBackground(BLACK);
 
 		// draw some text using the default font
-		DrawText("Hello Raylib", 200,200,20,WHITE);
-
-		// draw our texture to the screen
-		DrawTexture(wabbit, 400, 200, WHITE);
+		DrawText("it's alive", 10,10,20,PURPLE);
+    DrawText(TextFormat("time: %f s",currentTime), 10, 30, 20, WHITE);
 		
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
+    
+    //update variables
+    currentTime = GetTime();
+    deltaTime = (float)(currentTime - previousTime);
+    deltaTime = (float)(currentTime - previousTime);
 	}
 
 	// cleanup
 	// unload our texture so it can be cleaned up
-	UnloadTexture(wabbit);
+	//UnloadTexture(textureName);
 
 	// destroy the window and cleanup the OpenGL context
 	CloseWindow();
