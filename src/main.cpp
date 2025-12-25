@@ -160,6 +160,7 @@ int main ()
   long int mouseMass = 0;
 
   int planetSpeed = 3;
+  int planetSize = 3;
 
   float gravConst = 6.6743*(pow(10,-11));
 
@@ -201,12 +202,8 @@ int main ()
           particles.push_back(newParticle);
       }
       if (IsKeyPressed(KEY_B)) {
-          Particle newParticle{GetMousePosition().x, GetMousePosition().y,planetSpeed, 4};
+          Particle newParticle{GetMousePosition().x, GetMousePosition().y,planetSpeed, planetSize};
           particles.push_back(newParticle);
-      }
-      if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-        Particle newParticle{GetMousePosition().x, GetMousePosition().y, 0, 10};
-        particles.push_back(newParticle);
       }
       std::cout << particles.size() << "th particle created" << std::endl;
     }
@@ -230,6 +227,9 @@ int main ()
 
     if (IsKeyPressed(KEY_S)) planetSpeed++;
     if (IsKeyPressed(KEY_A)) planetSpeed--;
+
+    if (IsKeyPressed(KEY_X)) planetSize++;
+    if (IsKeyPressed(KEY_Z)) planetSize--;
 
     camera.zoom = expf(logf(camera.zoom) + ((float)GetMouseWheelMove()*0.1f));
 
@@ -272,7 +272,8 @@ int main ()
 		// draw some text using the default font
     DrawText(TextFormat("time (s): %f",GetTime()), 1, 1, 20, PURPLE);
     DrawText(TextFormat("particles: %0i", particles.size()),1, 20, 20, PURPLE);
-    DrawText(TextFormat("PS: %0i", planetSpeed), 1, 40, 20, PURPLE);
+    DrawText(TextFormat("NewPSpeed: %0i", planetSpeed), 1, 40, 20, PURPLE);
+    DrawText(TextFormat("NewPSize: %0i", planetSize), 1, 60, 20, PURPLE);
 
     //Draw whatever
     //DrawCircle(thing.posX, thing.posY, 25.0f, PURPLE);
