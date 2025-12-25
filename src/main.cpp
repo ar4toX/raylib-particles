@@ -19,15 +19,16 @@ class Particle {
     Vector2d _pos;
     Vector2d _vel;
     int _size = (rand() % 11) +10;
-    long int _mass = pow(_size, 10);
+    long int _mass = pow(_size,10)/*1000000*/;
     Color _color = PURPLE;
 
-   Particle(Vector2 place, int Vel, int size) {
+   Particle(float posX, float posY, int Vel, int size) {
      srand(time(0));
      //std::cout << "mouse particle constructed" << std::endl;
-     _pos(0)=place.x;
-     _pos(1)=place.y;
+     _pos(0)=posX;
+     _pos(1)=posY;
      _size=size;
+     _mass=(pow(_size,5))*100000;
      _vel = Vector2d(Vel, 0);
    }
 
@@ -36,8 +37,8 @@ class Particle {
      _pos(0)=(rand() % 6010)/10;
      _pos(1)=(rand() % 4010)/10;
      _vel = Vector2d(/*(rand() % 6) -3*/0, /*(rand() % 6) -3*/0);
-     _size = (rand() % 21) + 0;
-     _mass = _size*10;
+     //_size = (rand() % 21) + 0;
+     //_mass = _size*10;
      std::cout << "randParticle of mass" << _mass << " constructed" << std::endl;
    }
 
@@ -127,11 +128,11 @@ class Particle {
      Vector2d direction = Vector2d(two._pos(0), two._pos(1)) - Vector2d(_pos(0), _pos(1));
      //Vector2d direction = Vector2d(_pos(0), _pos(1)) - Vector2d(two._pos(0), two._pos(1));
 
-     float dist = sqrt( (x_dist*x_dist) + (y_dist*y_dist) );
+     float distance = sqrt( (x_dist*x_dist) + (y_dist*y_dist) );
 
-     if (dist==0) return;
+     if (distance==0) return;
 
-     float force = (gravConst*_mass*two._mass)/(dist*dist);
+     float force = (gravConst*_mass*two._mass)/pow(distance, 2);
 
      Vector2d acceleration = (force / _mass) * direction.normalized();
 
@@ -154,9 +155,11 @@ class Particle {
 int main ()
 {
   int windowWidth = 800;
-  int windowHeight = 500;
+  int windowHeight = 800;
 
   long int mouseMass = 0;
+
+  int planetSpeed = 3;
 
   float gravConst = 6.6743*(pow(10,-11));
 
@@ -172,6 +175,12 @@ int main ()
   //Create particles
   //Particle defParticle{};
   std::vector<Particle> particles;
+  
+  /*Particle Earth{400.0, 250.0, 0, 81};
+    //particles.push_back(Earth);
+  Particle Moon{400+(5.236*pow(10,-18)),250, 0, 1};
+    particles.push_back(Moon);
+    particles.push_back(Earth);*/
 
   Camera2D camera = { 0 };
   camera.target = (Vector2){0, 0};
@@ -188,19 +197,21 @@ int main ()
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsKeyPressed(KEY_B) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
       if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-          Particle newParticle{GetMousePosition(), 0, 50};
+          Particle newParticle{GetMousePosition().x, GetMousePosition().y, 0, 50};
           particles.push_back(newParticle);
       }
       if (IsKeyPressed(KEY_B)) {
-          Particle newParticle{GetMousePosition(),-1, 10};
+          Particle newParticle{GetMousePosition().x, GetMousePosition().y,planetSpeed, 4};
           particles.push_back(newParticle);
       }
       if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-        Particle newParticle{GetMousePosition(), 0, 10};
+        Particle newParticle{GetMousePosition().x, GetMousePosition().y, 0, 10};
         particles.push_back(newParticle);
       }
       std::cout << particles.size() << "th particle created" << std::endl;
     }
+
+    
 
     //delete last particle
     if (IsKeyPressed(KEY_D) && particles.size() > 0) particles.pop_back();
@@ -216,6 +227,9 @@ int main ()
     if (IsKeyPressed(KEY_ZERO)) mouseMass=0;
 
     if (IsKeyPressed(KEY_M)) mouseMass=999999999999;
+
+    if (IsKeyPressed(KEY_S)) planetSpeed++;
+    if (IsKeyPressed(KEY_A)) planetSpeed--;
 
     camera.zoom = expf(logf(camera.zoom) + ((float)GetMouseWheelMove()*0.1f));
 
@@ -258,7 +272,7 @@ int main ()
 		// draw some text using the default font
     DrawText(TextFormat("time (s): %f",GetTime()), 1, 1, 20, PURPLE);
     DrawText(TextFormat("particles: %0i", particles.size()),1, 20, 20, PURPLE);
-    DrawText(TextFormat("MM: %0i", mouseMass), 1, 40, 20, PURPLE);
+    DrawText(TextFormat("PS: %0i", planetSpeed), 1, 40, 20, PURPLE);
 
     //Draw whatever
     //DrawCircle(thing.posX, thing.posY, 25.0f, PURPLE);
