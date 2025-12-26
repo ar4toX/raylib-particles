@@ -17,7 +17,7 @@ using Eigen::Vector2d;
 class Particle {
   public:
     Vector2d _pos;
-    Vector2d _vel;
+    Vector2d _vel;;;;;
     int _size = (rand() % 11) +10;
     long int _mass = pow(_size,10)/*1000000*/;
     Color _color = PURPLE;
@@ -46,17 +46,16 @@ class Particle {
      _pos(0) += _vel(0);
      _pos(1) += _vel(1);
 
-     //_velY += 1;
-
+     //uncomment for particles to bounce off walls
      /*if (_pos(0) >= 800 - _size || _pos(0) <= _size) {
        _vel(0) *= -1;
        if (_pos(0)>=800-_size) _pos(0)=800-_size;
        if (_pos(0) <= _size) _pos(0) = _size;
      }
 
-     if (_pos(1) >= 500 - _size || _pos(1) <= _size) {
+     if (_pos(1) >= 800 - _size || _pos(1) <= _size) {
        _vel(1) *= -1;
-       if (_pos(1)>=500-_size) _pos(1)=500-_size;
+       if (_pos(1)>=800-_size) _pos(1)=800-_size;
        if (_pos(1) <= _size) _pos(1) = _size;
      }*/
    }
@@ -65,35 +64,31 @@ class Particle {
      int x_dist = _pos(0) - particle._pos(0);
      int y_dist = _pos(1) - particle._pos(1);
      float total_dist = sqrt((x_dist*x_dist) + (y_dist*y_dist));
-     //std::cout << "dist of: " << total_dist << std::endl;
-     int velAvg = (_vel(0)+_vel(1))/2;
-     int intensity = velAvg - (particle._vel(0)+_vel(1))/2;
-
-     int overlap = _size + particle._size - total_dist;
 
      if (total_dist <= (_size + particle._size)) {
-       /*Vector2d distance = Vector2d(x_dist, y_dist).normalized();
-       Vector2d relVel = Vector2d(_vel(0), _vel(1))-Vector2d(particle._vel(0), particle._vel(1));
+       Vector2d relVel = particle._vel -  _vel;
+       Vector2d direction = particle._pos - _pos;
 
-       int velANormal = relVel.dot(distance);
+       _pos -= direction*0.1;
 
-       if (velANormal > 0) return;
+       Vector2d unitTangent(-direction(0), -direction(1));
 
-       int impulse = (2 * velANormal) / (_size+particle._size);
+       float velOneN = direction.dot(_vel);
+       float velOneT = unitTangent.dot(_vel);
 
-       _vel(0) -= impulse*distance(0);
-       _vel(1) -= impulse*distance(1);
+       float velTwoN = direction.dot(particle._vel);
+       float velTwoT = unitTangent.dot(particle._vel);
 
-       particle._vel(0) += impulse*distance(0);
-       particle._vel(1) += impulse*distance(1);
+       Vector2d velOneTAfterCollision = velOneT*unitTangent;
+       Vector2d velTwoTAfterCollision = velTwoT*unitTangent;
 
-       _pos(0) += distance(0) * overlap/2;
-       _pos(1) += distance(1) * overlap/2;
+       Vector2d velOneNAfterCollision = ((velOneN*(_mass-particle._mass)+2*particle._mass*velTwoN)/(_mass+particle._mass))*direction;
+       Vector2d velTwoNAfterCollision = ((velTwoN*(particle._mass-_mass)+2*_mass*velOneN)/(_mass+particle._mass))*direction;
 
-       particle._pos(0) -= distance(0) * overlap/2;
-       particle._pos(1) -= distance(1) * overlap/2;*/
-
-       _vel(0) = 0; _vel(1) = 0;
+       _vel = velOneNAfterCollision + velOneTAfterCollision;
+       std::cout << _vel << std::endl;
+       std::cout << std::endl;
+       //_vel += finalVel;
        
        _color = RED;
      }else{
@@ -157,8 +152,6 @@ int main ()
   int windowWidth = 800;
   int windowHeight = 800;
 
-  long int mouseMass = 0;
-
   int planetSpeed = 3;
   int planetSize = 3;
 
@@ -174,20 +167,19 @@ int main ()
 	SearchAndSetResourceDir("resources");
 
   //Create particles
-  //Particle defParticle{};
   std::vector<Particle> particles;
-  
-  /*Particle Earth{400.0, 250.0, 0, 81};
-    //particles.push_back(Earth);
-  Particle Moon{400+(5.236*pow(10,-18)),250, 0, 1};
-    particles.push_back(Moon);
-    particles.push_back(Earth);*/
+
+  //grid of particles, fun 
+  for (int i = 50; i<750; i+=50) {
+    for (int j=50; j<750; j+=50) {
+      Particle newParticle{i, j, 0, 5};
+      particles.push_back(newParticle);
+    }
+  }
 
   Camera2D camera = { 0 };
   camera.target = (Vector2){0, 0};
   camera.zoom = 1.0f;
-
-
 
   SetTargetFPS(60);
 	// game loop
@@ -213,18 +205,6 @@ int main ()
     //delete last particle
     if (IsKeyPressed(KEY_D) && particles.size() > 0) particles.pop_back();
 
-    //Particle 
-
-    if (IsKeyPressed(KEY_P)) mouseMass++;
-    if (IsKeyPressed(KEY_O)) mouseMass--;
-
-    if (IsKeyDown(KEY_Y)) mouseMass++;
-    if (IsKeyDown(KEY_U)) mouseMass--;
-
-    if (IsKeyPressed(KEY_ZERO)) mouseMass=0;
-
-    if (IsKeyPressed(KEY_M)) mouseMass=999999999999;
-
     if (IsKeyPressed(KEY_S)) planetSpeed++;
     if (IsKeyPressed(KEY_A)) planetSpeed--;
 
@@ -244,21 +224,17 @@ int main ()
     }
 
     //check particle collisions
-    for (int i = 0; i < particles.size(); ++i) {
-      for (int j = i+1; j < particles.size(); ++j) {
-        //particles[i].check_collision(particles[j]);
+    /*for (int i = 0; i < particles.size(); ++i) {
+      for (int j = 0; j < particles.size(); ++j) {
+        if (i!=j) particles[i].check_collision(particles[j]);
       }
-    }
+    }*/
 
     //gravity somehow
     for (int i=0; i < particles.size(); ++i) {
       for (int j = 0; j < particles.size(); ++j) {
         if (i!=j) particles[i].doGravity(particles[j], gravConst);
       }
-    }
-
-    for (int i=0; i<particles.size(); i++) {
-      particles[i].seekMouse(GetMousePosition(), mouseMass, gravConst);
     }
 
 		// drawing
