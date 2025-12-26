@@ -170,12 +170,12 @@ int main ()
   std::vector<Particle> particles;
 
   //grid of particles, fun 
-  for (int i = 50; i<750; i+=50) {
+  /*for (int i = 50; i<750; i+=50) {
     for (int j=50; j<750; j+=50) {
       Particle newParticle{i, j, 0, 5};
       particles.push_back(newParticle);
     }
-  }
+  }*/
 
   Camera2D camera = { 0 };
   camera.target = (Vector2){0, 0};
