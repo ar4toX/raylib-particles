@@ -11,6 +11,7 @@ particle thing? :3
 #include <chrono>
 #include <cmath>
 #include <Eigen/Dense>
+#include <cstdlib>
 
 using Eigen::Vector2d;
 
@@ -25,8 +26,9 @@ class Particle {
    Particle(int posX, int posY, int Vel, int size) {
      srand(time(0));
      //std::cout << "mouse particle constructed" << std::endl;
-     _pos(0)=posX;
-     _pos(1)=posY;
+     int randomNum = rand() % 6;
+     _pos(0)=posX+randomNum;
+     _pos(1)=posY+randomNum;
      _size=size;
      _mass=(pow(_size,5))*100000;
      _vel = Vector2d(Vel, 0);
@@ -68,7 +70,7 @@ class Particle {
        Vector2d v1 = _vel;
        Vector2d v2 = particle._vel;
        _color=RED;
-       _pos+=-normal/10;
+       if (_size<particle._size || _size==particle._size) {_pos+=-normal/10;}
         //_vel-=normal/(10*particle._mass+_mass/particle._mass- _mass);
 
      }else{
@@ -124,14 +126,14 @@ int main ()
   std::vector<Particle> particles;
 
   //grid of particles, fun
-  /*int count=0;
+  int count=0;
   for (int i = 50; i<750; i+=50) {
     for (int j=50; j<750; j+=50) {
       Particle newParticle{i, j, 0, 10};
       particles.push_back(newParticle);
       count++;
     }
-  } std::cout << count << "PARTICLES";*/
+  } std::cout << count << "PARTICLES";
 
   Camera2D camera = { 0 };
   camera.target = (Vector2){0, 0};
