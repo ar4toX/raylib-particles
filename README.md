@@ -1,7 +1,3 @@
-epic gravity particle simulation
+N-Body Particle Simulation
 
--works pretty badly
--will be better at some point 
--just trying to learn
-
-
+Built with Raylib
